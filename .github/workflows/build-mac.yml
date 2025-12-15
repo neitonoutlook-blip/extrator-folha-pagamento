@@ -1,4 +1,4 @@
-name: Build macOS App
+name: Build macOS App + DMG
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
       with:
         python-version: "3.11"
 
-    - name: Install dependencies
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
@@ -26,10 +26,26 @@ jobs:
 
     - name: Build macOS App
       run: |
-        pyinstaller --windowed --onefile main.py
+        pyinstaller --windowed --onefile main.py --name "Extrator Folha Pagamento"
 
-    - name: Upload App
+    - name: Install create-dmg
+      run: |
+        brew install create-dmg
+
+    - name: Create DMG installer
+      run: |
+        mkdir dmg
+        create-dmg \
+          --volname "Extrator Folha Pagamento" \
+          --window-pos 200 120 \
+          --window-size 600 400 \
+          --icon-size 100 \
+          --app-drop-link 450 185 \
+          "Extrator_Folha_Pagamento.dmg" \
+          "dist/Extrator Folha Pagamento.app"
+
+    - name: Upload DMG
       uses: actions/upload-artifact@v4
       with:
-        name: Extrator_Folha_Pagamento_macOS
-        path: dist/*.app
+        name: Extrator_Folha_Pagamento_macOS_DMG
+        path: Extrator_Folha_Pagamento.dmg
